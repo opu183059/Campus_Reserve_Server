@@ -28,6 +28,20 @@ async function run() {
     // await client.connect();
 
     const collegeData = client.db("CampusReserve").collection("campusDB");
+    const bookAdmission = client
+      .db("CampusReserve")
+      .collection("bookAdmission");
+
+    // search college
+    app.get("/searchCollege/:name", async (req, res) => {
+      const name = req.params.name;
+      // console.log(name);
+      const result = await collegeData
+        .find({ college_name: { $regex: name, $options: "i" } })
+        .limit(3)
+        .toArray();
+      res.json(result);
+    });
 
     // get all college information
     app.get("/all-college", async (req, res) => {
@@ -41,6 +55,26 @@ async function run() {
       console.log(id);
       const query = { _id: new ObjectId(id) };
       const result = await collegeData.findOne(query);
+      res.json(result);
+    });
+
+    // Admission bookings
+    app.post("/bookAdmission", async (req, res) => {
+      const body = req.body;
+      body.createdAt = new Date();
+      const result = await bookAdmission.insertOne(body);
+      res.json(result);
+    });
+
+    // My Admission bookings
+    app.get("/myBookings/:email", async (req, res) => {
+      const email = req.params.email;
+      const result = await bookAdmission
+        .find({
+          email: req.params.email,
+        })
+        .sort({ createdAt: -1 })
+        .toArray();
       res.json(result);
     });
 
