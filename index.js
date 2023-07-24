@@ -57,6 +57,32 @@ async function run() {
       res.json(result);
     });
 
+    // get user information by email
+    app.get("/user-data/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await userData.findOne(query);
+      res.json(result);
+    });
+
+    // update user information
+    app.put("/user-profile-update/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const option = { upsert: true };
+      const updatedProfileData = req.body;
+      const updateData = {
+        $set: {
+          name: updatedProfileData.name,
+          email: updatedProfileData.email,
+          address: updatedProfileData.address,
+          university: updatedProfileData.university,
+        },
+      };
+      const result = await userData.updateOne(query, updateData, option);
+      res.json(result);
+    });
+
     // get all college information
     app.get("/all-college", async (req, res) => {
       const result = await collegeData.find({}).toArray();
