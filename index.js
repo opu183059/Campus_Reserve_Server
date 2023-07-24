@@ -31,7 +31,7 @@ async function run() {
     const bookAdmission = client
       .db("CampusReserve")
       .collection("bookAdmission");
-
+    const reviews = client.db("CampusReserve").collection("reviews");
     // search college
     app.get("/searchCollege/:name", async (req, res) => {
       const name = req.params.name;
@@ -52,7 +52,7 @@ async function run() {
     // get college information by id
     app.get("/college-information/:id", async (req, res) => {
       const id = req.params.id;
-      console.log(id);
+      // console.log(id);
       const query = { _id: new ObjectId(id) };
       const result = await collegeData.findOne(query);
       res.json(result);
@@ -66,7 +66,7 @@ async function run() {
       res.json(result);
     });
 
-    // My Admission bookings
+    // Get My Admission bookings
     app.get("/myBookings/:email", async (req, res) => {
       const email = req.params.email;
       const result = await bookAdmission
@@ -75,6 +75,14 @@ async function run() {
         })
         .sort({ createdAt: -1 })
         .toArray();
+      res.json(result);
+    });
+
+    // Give Reviews to colleges
+    app.post("/reviews", async (req, res) => {
+      const body = req.body;
+      body.createdAt = new Date();
+      const result = await reviews.insertOne(body);
       res.json(result);
     });
 
