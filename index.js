@@ -28,6 +28,7 @@ async function run() {
     // await client.connect();
 
     const collegeData = client.db("CampusReserve").collection("campusDB");
+    const userData = client.db("CampusReserve").collection("userDB");
     const bookAdmission = client
       .db("CampusReserve")
       .collection("bookAdmission");
@@ -40,6 +41,19 @@ async function run() {
         .find({ college_name: { $regex: name, $options: "i" } })
         .limit(3)
         .toArray();
+      res.json(result);
+    });
+
+    // put user on registration and update
+    app.put("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const query = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: user,
+      };
+      const result = await userData.updateOne(query, updateDoc, options);
       res.json(result);
     });
 
